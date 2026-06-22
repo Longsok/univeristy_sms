@@ -34,7 +34,7 @@ RUN a2enmod rewrite
 
 CMD php artisan config:clear && \
     php artisan migrate --force && \
-    php artisan db:seed --class=AdminSeeder --force && \
+    php artisan db:seed --class=UserSeeder --force && \
     php artisan storage:link && \
     php artisan optimize && \
     apache2-foreground
