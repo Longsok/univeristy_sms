@@ -3,7 +3,6 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Support\Facades\Cache;
 
 class Semester extends Model
 {
@@ -60,13 +59,10 @@ class Semester extends Model
 
     // ── Static helpers ────────────────────────────────────────────────────────
 
-    public static function currentAcademicYear(): ?string
+   public static function currentAcademicYear(): ?string
     {
-        return Cache::remember('current_academic_year', 300, function () {
-            return self::where('is_active', true)->value('academic_year');
-        });
+        return self::where('is_active', true)->value('academic_year');
     }
-
     /**
      * For admin topbar — show the most relevant running semester
      */
