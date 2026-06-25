@@ -19,31 +19,53 @@
         <div class="card-rupp-body">
             <form method="POST" action="{{ route('admin.users.update', $user) }}">
                 @csrf @method('PUT')
+
                 <div style="margin-bottom:14px;">
-                    <label class="form-label-rupp">Full Name <span style="color:#ef4444">*</span></label>
-                    <input type="text" name="name" value="{{ old('name', $user->name) }}" class="form-control-rupp" required>
+                    <label class="form-label-rupp">Full Name (English) <span style="color:#ef4444">*</span></label>
+                    <input type="text" name="name" value="{{ old('name', $user->name) }}"
+                        class="form-control-rupp" required>
                     @error('name')<div class="form-error">{{ $message }}</div>@enderror
                 </div>
+
+                <div style="margin-bottom:14px;">
+                    <label class="form-label-rupp">ឈ្មោះភាសាខ្មែរ (Khmer Name)</label>
+                    <input type="text" name="name_kh" value="{{ old('name_kh', $user->name_kh) }}"
+                        class="form-control-rupp"
+                        placeholder="ឈ្មោះជាភាសាខ្មែរ"
+                        style="font-family:'Hanuman',serif;">
+                    @error('name_kh')<div class="form-error">{{ $message }}</div>@enderror
+                </div>
+
                 <div style="margin-bottom:14px;">
                     <label class="form-label-rupp">Email</label>
-                    <input type="email" value="{{ $user->email }}" class="form-control-rupp" disabled style="background:#f9fafb;color:#9ca3af;">
+                    <input type="email" value="{{ $user->email }}" class="form-control-rupp"
+                        disabled style="background:#f9fafb;color:#9ca3af;">
                 </div>
+
                 <div style="margin-bottom:14px;">
                     <label class="form-label-rupp">Phone</label>
-                    <input type="text" name="phone" value="{{ old('phone', $user->phone) }}" class="form-control-rupp">
+                    <input type="text" name="phone" value="{{ old('phone', $user->phone) }}"
+                        class="form-control-rupp">
                 </div>
+
                 <div style="margin-bottom:14px;">
                     <label class="form-label-rupp">Address</label>
                     <textarea name="address" rows="2" class="form-control-rupp">{{ old('address', $user->address) }}</textarea>
                 </div>
+
                 <div style="margin-bottom:16px;">
                     <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px;">
-                        <input type="checkbox" name="is_active" value="1" {{ $user->is_active ? 'checked' : '' }} style="accent-color:var(--rupp-green);">
+                        <input type="checkbox" name="is_active" value="1"
+                            {{ $user->is_active ? 'checked' : '' }}
+                            style="accent-color:var(--rupp-green);">
                         Account Active
                     </label>
                 </div>
+
                 <div style="display:flex;gap:10px;">
-                    <button type="submit" class="btn-rupp-primary"><i class="bi bi-floppy-fill"></i> Update</button>
+                    <button type="submit" class="btn-rupp-primary">
+                        <i class="bi bi-floppy-fill"></i> Update
+                    </button>
                     <a href="{{ route('admin.users.index') }}" class="btn-rupp-outline">Cancel</a>
                 </div>
             </form>
@@ -61,7 +83,9 @@
             <div style="display:grid;gap:12px;">
                 <div>
                     <div class="form-label-rupp">Student ID</div>
-                    <div style="font-size:14px;font-family:monospace;font-weight:600;color:var(--rupp-green);">{{ $user->student->student_id }}</div>
+                    <div style="font-size:14px;font-family:monospace;font-weight:600;color:var(--rupp-green);">
+                        {{ $user->student->student_id }}
+                    </div>
                 </div>
                 <div>
                     <div class="form-label-rupp">Program</div>
@@ -73,6 +97,22 @@
                     <div style="font-size:13px;color:#374151;">Year {{ $user->student->year_level }}</div>
                 </div>
                 <div>
+                    <div class="form-label-rupp">Batch</div>
+                    @if($user->student->batch)
+                        <span class="badge-rupp badge-blue">Batch {{ $user->student->batch }}</span>
+                    @else
+                        <span style="font-size:13px;color:#9ca3af;">Not assigned</span>
+                    @endif
+                </div>
+                <div>
+                    <div class="form-label-rupp">Class Group</div>
+                    @if($user->student->classGroup)
+                        <span class="badge-rupp badge-green">{{ $user->student->classGroup->name }}</span>
+                    @else
+                        <span style="font-size:13px;color:#9ca3af;">Not assigned</span>
+                    @endif
+                </div>
+                <div>
                     <div class="form-label-rupp">Status</div>
                     <span class="badge-rupp badge-green">{{ ucfirst($user->student->status) }}</span>
                 </div>
@@ -81,7 +121,8 @@
                     <form action="{{ route('admin.students.scholarship', $user->student) }}" method="POST"
                           style="display:flex; gap:8px; align-items:center; margin-top:4px;">
                         @csrf @method('PUT')
-                        <select name="scholarship_type" class="form-select-rupp" style="font-size:12px; padding:5px 10px;" onchange="this.form.submit()">
+                        <select name="scholarship_type" class="form-select-rupp"
+                            style="font-size:12px; padding:5px 10px;" onchange="this.form.submit()">
                             <option value="paid"    {{ ($user->student->scholarship_type ?? 'paid') === 'paid'    ? 'selected' : '' }}>
                                 💰 Self-Funded (Paid)
                             </option>
@@ -95,11 +136,14 @@
                     </form>
                 </div>
             </div>
+
             @elseif($user->isTeacher() && $user->teacher)
             <div style="display:grid;gap:12px;">
                 <div>
                     <div class="form-label-rupp">Employee ID</div>
-                    <div style="font-size:14px;font-family:monospace;font-weight:600;color:var(--rupp-green);">{{ $user->teacher->employee_id }}</div>
+                    <div style="font-size:14px;font-family:monospace;font-weight:600;color:var(--rupp-green);">
+                        {{ $user->teacher->employee_id }}
+                    </div>
                 </div>
                 <div>
                     <div class="form-label-rupp">Department</div>
@@ -111,6 +155,7 @@
                     <div style="font-size:13px;color:#374151;">{{ $user->teacher->specialization ?? '—' }}</div>
                 </div>
             </div>
+
             @else
             <div style="color:#9ca3af;font-size:13px;text-align:center;padding:20px;">
                 Administrator account — no profile record.
