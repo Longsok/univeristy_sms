@@ -98,11 +98,18 @@
                 </div>
                 <div>
                     <div class="form-label-rupp">Batch</div>
-                    @if($user->student->batch)
-                        <span class="badge-rupp badge-blue">Batch {{ $user->student->batch }}</span>
-                    @else
-                        <span style="font-size:13px;color:#9ca3af;">Not assigned</span>
-                    @endif
+                    <form action="{{ route('admin.students.update-batch', $user->student) }}" method="POST"
+                          style="display:flex; gap:8px; align-items:center; margin-top:4px;">
+                        @csrf @method('PUT')
+                        <input type="number" name="batch" value="{{ $user->student->batch }}"
+                            min="1" max="999"
+                            class="form-control-rupp"
+                            style="width:100px; font-size:12px; padding:5px 10px;"
+                            placeholder="e.g. 1">
+                        <button type="submit" class="btn-rupp-outline" style="padding:5px 12px; font-size:12px; white-space:nowrap;">
+                            <i class="bi bi-floppy-fill"></i> Save
+                        </button>
+                    </form>
                 </div>
                 <div>
                     <div class="form-label-rupp">Class Group</div>

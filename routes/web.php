@@ -58,6 +58,8 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin'])->grou
          ->name('students.program');
      Route::put('students/{student}/scholarship', [\App\Http\Controllers\Admin\UserController::class, 'updateScholarship'])
           ->name('students.scholarship');
+     Route::put('students/{student}/batch', [\App\Http\Controllers\Admin\UserController::class, 'updateBatch'])
+          ->name('students.update-batch');
     Route::get('students', [\App\Http\Controllers\Admin\UserController::class, 'students'])
          ->name('students.index');
 

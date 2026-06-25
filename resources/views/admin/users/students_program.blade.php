@@ -126,6 +126,7 @@
                         <th>Student</th>
                         <th>Student ID</th>
                         <th style="text-align:center;">Year</th>
+                        <th style="text-align:center;">Batch</th>
                         <th>Class Group</th>
                         <th>Status</th>
                         <th>Actions</th>
@@ -155,6 +156,15 @@
                         <td style="text-align:center;">
                             <span class="badge-rupp badge-blue">Year {{ $student->year_level }}</span>
                         </td>
+                        <td style="text-align:center;">
+                            @if($student->batch)
+                            <span style="background:#dbeafe; color:#1e40af; border-radius:20px; padding:3px 10px; font-size:11px; font-weight:600;">
+                                Batch {{ $student->batch }}
+                            </span>
+                            @else
+                            <span style="color:#d1d5db; font-size:12px;">—</span>
+                            @endif
+                        </td>
                         <td>
                             @if($student->classGroup)
                             <span class="badge-rupp badge-green">{{ $student->classGroup->name }}</span>
@@ -171,15 +181,6 @@
                                 <i class="bi bi-circle-fill" style="font-size:6px;"></i>
                                 {{ ucfirst($student->status) }}
                             </span>
-                            @if(($student->scholarship_type ?? 'paid') === 'full')
-                            <span style="background:#fef3c7; color:#92400e; border-radius:20px; padding:2px 10px; font-size:11px; font-weight:600;">
-                                ⭐ Full Scholarship
-                            </span>
-                            @elseif(($student->scholarship_type ?? 'paid') === 'partial')
-                            <span style="background:#ede9fe; color:#5b21b6; border-radius:20px; padding:2px 10px; font-size:11px; font-weight:600;">
-                                🎓 Partial
-                            </span>
-                            @endif
                         </td>
                         <td>
                             <div style="display:flex; gap:6px;">

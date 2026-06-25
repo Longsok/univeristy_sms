@@ -220,6 +220,23 @@ class UserController extends Controller
         );
     }
 
+    public function updateBatch(Request $request, \App\Models\Student $student)
+    {
+        $request->validate([
+            'batch' => 'nullable|integer|min:1|max:999',
+        ]);
+    
+        $student->update([
+            'batch' => $request->batch ?: null,
+        ]);
+    
+        return back()->with('success',
+            $request->batch
+                ? "{$student->user->name} assigned to Batch {$request->batch}."
+                : "{$student->user->name} batch removed."
+        );
+    }
+
     public function toggleActive(User $user)
     {
         $user->update(['is_active' => !$user->is_active]);
