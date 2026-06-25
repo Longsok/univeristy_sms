@@ -66,6 +66,7 @@ class StudentImportController extends Controller
             'program_code',
             'year_level',
             'date_of_birth',
+            'scholarship_type',
             'course_code',
             'section_name',
         ];
