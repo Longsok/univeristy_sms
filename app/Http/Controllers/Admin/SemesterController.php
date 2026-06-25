@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Semester;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Cache;
 
 class SemesterController extends Controller
 {
@@ -40,7 +39,6 @@ class SemesterController extends Controller
 
         Semester::create($data);
 
-        Cache::forget('current_academic_year');
 
         $yearLabel = $data['year_level'] ? "Year {$data['year_level']}" : 'All Years';
         return back()->with('success', "{$data['name']} ({$yearLabel}, {$data['academic_year']}) added.");
@@ -68,10 +66,14 @@ class SemesterController extends Controller
             );
         }
         $semester->delete();
-        Cache::forget('current_academic_year');
         return back()->with('success', 'Semester deleted.');
     }
 
+    /**
+     * Set an entire academic year as current.
+     * ALL semesters in that year activate simultaneously.
+     * Status (Running/Upcoming) is then determined by dates automatically.
+     */
     public function setActiveYear(Request $request)
     {
         $year = $request->validate([
@@ -81,7 +83,6 @@ class SemesterController extends Controller
         Semester::query()->update(['is_active' => false]);
         $count = Semester::where('academic_year', $year)->update(['is_active' => true]);
 
-        Cache::forget('current_academic_year');
 
         return back()->with('success',
             "Academic Year {$year} is now current. {$count} semester record(s) activated."

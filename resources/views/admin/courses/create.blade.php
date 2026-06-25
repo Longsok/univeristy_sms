@@ -158,7 +158,7 @@ document.querySelector('select[name="year_level"]')?.addEventListener('change', 
     // Reset selection
     semSelect.value = '';
 });
-</script>
+
 // Auto-fill department when program is selected
 function fillDepartment(select) {
     const option = select.options[select.selectedIndex];
