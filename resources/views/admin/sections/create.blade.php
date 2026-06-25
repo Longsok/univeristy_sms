@@ -23,36 +23,55 @@
             <form method="POST" action="{{ route('admin.sections.store') }}">
                 @csrf
 
+                {{-- Course — grouped by Department → Program --}}
                 <div style="margin-bottom:16px;">
                     <label class="form-label-rupp">Course <span style="color:#ef4444">*</span></label>
                     <select name="course_id" class="form-select-rupp" required>
                         <option value="">— Select Course —</option>
-                        @foreach($courses as $course)
-                            <option value="{{ $course->id }}" {{ old('course_id') == $course->id ? 'selected' : '' }}>
-                                {{ $course->code }} — {{ $course->name }}
+                        @foreach($courses->groupBy(fn($c) => $c->program?->department?->name ?? 'Other') as $deptName => $deptCourses)
+                        <optgroup label="{{ $deptName }}">
+                            @foreach($deptCourses->groupBy(fn($c) => $c->program?->name ?? 'Other') as $progName => $progCourses)
+                            @foreach($progCourses->sortBy('code') as $course)
+                            <option value="{{ $course->id }}"
+                                {{ (old('course_id', $selectedCourseId) == $course->id) ? 'selected' : '' }}>
+                                [{{ $course->program?->code }}] {{ $course->code }} — {{ $course->name }}
+                                (Yr{{ $course->year_level }})
                             </option>
+                            @endforeach
+                            @endforeach
+                        </optgroup>
                         @endforeach
                     </select>
                     @error('course_id')<div class="form-error">{{ $message }}</div>@enderror
+                    <div style="font-size:11.5px; color:#6b7280; margin-top:4px;">
+                        Courses are grouped by Department → Program so you can find the right one easily.
+                    </div>
                 </div>
 
+                {{-- Teacher --}}
                 <div style="margin-bottom:16px;">
                     <label class="form-label-rupp">Teacher</label>
                     <select name="teacher_id" class="form-select-rupp">
                         <option value="">— No teacher yet —</option>
-                        @foreach($teachers as $teacher)
+                        @foreach($teachers->groupBy(fn($t) => $t->department?->name ?? 'Other') as $deptName => $deptTeachers)
+                        <optgroup label="{{ $deptName }}">
+                            @foreach($deptTeachers as $teacher)
                             <option value="{{ $teacher->id }}" {{ old('teacher_id') == $teacher->id ? 'selected' : '' }}>
-                                {{ $teacher->user->name }} ({{ $teacher->department->name }})
+                                {{ $teacher->user->name }}
+                                @if($teacher->specialization) ({{ $teacher->specialization }}) @endif
                             </option>
+                            @endforeach
+                        </optgroup>
                         @endforeach
                     </select>
                 </div>
 
+                {{-- Section name + capacity --}}
                 <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:16px;">
                     <div>
                         <label class="form-label-rupp">Section Name <span style="color:#ef4444">*</span></label>
                         <input type="text" name="name" value="{{ old('name') }}"
-                            class="form-control-rupp" placeholder="e.g. M1, 3CS-A" required>
+                            class="form-control-rupp" placeholder="e.g. M1, ITE-A" required>
                         @error('name')<div class="form-error">{{ $message }}</div>@enderror
                     </div>
                     <div>
@@ -62,27 +81,26 @@
                     </div>
                 </div>
 
-                {{-- Class Group enrollment --}}
+                {{-- Auto-enroll from class group --}}
                 @if($classGroups->count() > 0)
                 <div style="background:#f0fdf4; border:1px solid #86efac; border-radius:10px; padding:16px; margin-bottom:16px;">
-                    <div style="font-size:13px; font-weight:600; color:#166534; margin-bottom:10px; display:flex; align-items:center; gap:8px;">
-                        <i class="bi bi-lightning-fill"></i>
-                        Auto-Enroll from Class Group (optional)
+                    <div style="font-size:13px; font-weight:600; color:#166534; margin-bottom:6px; display:flex; align-items:center; gap:8px;">
+                        <i class="bi bi-lightning-fill"></i> Auto-Enroll from Class Group (optional)
                     </div>
-                    <div style="font-size:12.5px; color:#6b7280; margin-bottom:10px;">
+                    <div style="font-size:12px; color:#6b7280; margin-bottom:10px;">
                         Select a class group to automatically enroll all its students when this section is created.
                     </div>
                     <select name="class_group_id" class="form-select-rupp">
                         <option value="">— No auto-enroll —</option>
                         @foreach($classGroups->groupBy(fn($g) => $g->program->name) as $progName => $groups)
-                            <optgroup label="{{ $progName }}">
-                                @foreach($groups->sortBy(['year_level','name']) as $group)
-                                <option value="{{ $group->id }}" {{ old('class_group_id') == $group->id ? 'selected' : '' }}>
-                                    {{ $group->name }} — Year {{ $group->year_level }}
-                                    ({{ $group->students_count }} students)
-                                </option>
-                                @endforeach
-                            </optgroup>
+                        <optgroup label="{{ $progName }}">
+                            @foreach($groups->sortBy(['year_level','name']) as $group)
+                            <option value="{{ $group->id }}" {{ old('class_group_id') == $group->id ? 'selected' : '' }}>
+                                {{ $group->name }} — Year {{ $group->year_level }}
+                                ({{ $group->students_count }} students)
+                            </option>
+                            @endforeach
+                        </optgroup>
                         @endforeach
                     </select>
                 </div>

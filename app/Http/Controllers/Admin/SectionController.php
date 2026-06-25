@@ -1,30 +1,27 @@
 <?php
-
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\{Section, Course, Teacher, ClassGroup, Enrollment};
+use App\Models\{Section, Course, Teacher, ClassGroup, Enrollment, Department};
 use Illuminate\Http\Request;
 
 class SectionController extends Controller
 {
     public function index(Request $request)
     {
-        $sections = Section::with([
-            'course.department',
-            'course.program',
-            'teacher.user',
-            'enrollments',
+        $departments = Department::with([
+            'programs.courses.sections.teacher.user',
+            'programs.courses.sections.enrollments',
+            'programs.courses.semester',
         ])
-        ->when($request->course_id, fn($q) => $q->where('course_id', $request->course_id))
+        ->where('is_active', true)
+        ->orderBy('name')
         ->get();
 
-        $courses = Course::with('department')->orderBy('code')->get();
-
-        return view('admin.sections.index', compact('sections', 'courses'));
+        return view('admin.sections.index', compact('departments'));
     }
 
-    public function create()
+    public function create(Request $request)
     {
         $courses     = Course::with('department.faculty', 'program', 'semester')
                            ->orderBy('code')->get();
@@ -36,8 +33,11 @@ class SectionController extends Controller
                            ->orderBy('year_level')
                            ->orderBy('name')
                            ->get();
+        $selectedCourseId = $request->course_id;
 
-        return view('admin.sections.create', compact('courses', 'teachers', 'classGroups'));
+        return view('admin.sections.create', compact(
+            'courses', 'teachers', 'classGroups', 'selectedCourseId'
+        ));
     }
 
     public function store(Request $request)
@@ -52,10 +52,8 @@ class SectionController extends Controller
 
         $classGroupId = $data['class_group_id'] ?? null;
         unset($data['class_group_id']);
-
         $section = Section::create($data);
 
-        // Auto-enroll class group students if selected
         if ($classGroupId) {
             $classGroup = ClassGroup::with('students')->find($classGroupId);
             $count = 0;
@@ -67,20 +65,17 @@ class SectionController extends Controller
                 $count++;
             }
             return redirect()->route('admin.sections.index')
-                ->with('success', "Section created and {$count} students from {$classGroup->name} enrolled automatically.");
+                ->with('success', "Section created and {$count} students enrolled from {$classGroup->name}.");
         }
 
-        return redirect()->route('admin.sections.index')
-            ->with('success', 'Section created.');
+        return redirect()->route('admin.sections.index')->with('success', 'Section created.');
     }
 
     public function edit(Section $section)
     {
-        $courses  = Course::with('department.faculty', 'program', 'semester')
-                        ->orderBy('code')->get();
+        $courses  = Course::with('department.faculty', 'program', 'semester')->orderBy('code')->get();
         $teachers = Teacher::with('user', 'department')->get();
         $section->load('gradeComponents');
-
         return view('admin.sections.edit', compact('section', 'courses', 'teachers'));
     }
 
@@ -92,7 +87,6 @@ class SectionController extends Controller
             'name'         => 'required|string|max:50',
             'max_students' => 'required|integer|min:1|max:200',
         ]);
-
         $section->update($data);
         return back()->with('success', 'Section updated.');
     }
@@ -106,13 +100,11 @@ class SectionController extends Controller
     public function printStudents(Section $section)
     {
         $section->load('course.program.department', 'teacher.user');
- 
         $enrollments = $section->enrollments()
             ->where('status', 'enrolled')
             ->with('student.user', 'student.program')
             ->orderBy('created_at')
             ->get();
- 
         return view('admin.sections.print-students', compact('section', 'enrollments'));
     }
 }
