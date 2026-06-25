@@ -13,7 +13,7 @@ use Maatwebsite\Excel\Concerns\SkipsErrors;
 use Maatwebsite\Excel\Concerns\WithBatchInserts;
 use Maatwebsite\Excel\Concerns\WithChunkReading;
 
-class StudentsImport implements
+class StudentImport implements
     ToCollection,
     WithHeadingRow,
     WithBatchInserts,
