@@ -22,7 +22,12 @@
             <div class="card-rupp-body" style="text-align:center;">
                 <div style="width:90px;height:90px;border-radius:50%;overflow:hidden;margin:0 auto 16px;background:var(--rupp-gold-pale);display:flex;align-items:center;justify-content:center;font-size:32px;font-weight:700;color:#92680a;border:3px solid var(--rupp-gold);">
                     @if(Auth::user()->photo)
-                        <img src="{{ Auth::user()->photo_url }}" style="width:100%;height:100%;object-fit:cover;">
+                        <img src="{{ Auth::user()->photo_url }}"
+                             style="width:100%;height:100%;object-fit:cover;"
+                             onerror="this.style.display='none'; document.getElementById('avatar-initial').style.display='flex';">
+                        <span id="avatar-initial" style="display:none; width:100%; height:100%; align-items:center; justify-content:center; font-size:32px; font-weight:700; color:#92680a;">
+                            {{ strtoupper(substr(Auth::user()->name, 0, 1)) }}
+                        </span>
                     @else
                         {{ strtoupper(substr(Auth::user()->name, 0, 1)) }}
                     @endif
