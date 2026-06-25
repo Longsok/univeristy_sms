@@ -168,12 +168,20 @@ Route::prefix('teacher')->name('teacher.')->middleware(['auth', 'role:teacher'])
     Route::get('reports/{section}/pdf', [\App\Http\Controllers\Teacher\GradeReportController::class, 'pdf'])->name('reports.pdf');
     Route::get('reports/{section}/excel', [\App\Http\Controllers\Teacher\GradeReportController::class, 'excel'])->name('reports.excel');
 
-    Route::get('groups/{section}', [\App\Http\Controllers\Teacher\GroupController::class, 'index'])->name('groups.index');
-    Route::post('groups/{section}', [\App\Http\Controllers\Teacher\GroupController::class, 'store'])->name('groups.store');
-    Route::post('groups/{group}/assign', [\App\Http\Controllers\Teacher\GroupController::class, 'assign'])->name('groups.assign');
-    Route::post('groups/{group}/leader', [\App\Http\Controllers\Teacher\GroupController::class, 'setLeader'])->name('groups.leader');
-    Route::delete('groups/{group}/members/{student}', [\App\Http\Controllers\Teacher\GroupController::class, 'removeMember'])->name('groups.remove-member');
-    Route::delete('groups/{group}', [\App\Http\Controllers\Teacher\GroupController::class, 'destroy'])->name('groups.destroy');
+     Route::get('groups/{section}', [\App\Http\Controllers\Teacher\GroupController::class, 'index'])
+          ->name('groups.index');
+     Route::post('groups/{section}', [\App\Http\Controllers\Teacher\GroupController::class, 'store'])
+          ->name('groups.store');
+     Route::put('groups/{group}/rename', [\App\Http\Controllers\Teacher\GroupController::class, 'rename'])
+          ->name('groups.rename');
+     Route::post('groups/{group}/assign', [\App\Http\Controllers\Teacher\GroupController::class, 'assign'])
+          ->name('groups.assign');
+     Route::post('groups/{group}/leader', [\App\Http\Controllers\Teacher\GroupController::class, 'setLeader'])
+          ->name('groups.leader');
+     Route::delete('groups/{group}/members/{student}', [\App\Http\Controllers\Teacher\GroupController::class, 'removeMember'])
+          ->name('groups.remove-member');
+     Route::delete('groups/{group}', [\App\Http\Controllers\Teacher\GroupController::class, 'destroy'])
+          ->name('groups.destroy');
 });
 
 // ── STUDENT ───────────────────────────────────────────────────────────────────

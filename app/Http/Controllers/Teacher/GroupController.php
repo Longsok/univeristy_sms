@@ -14,7 +14,6 @@ class GroupController extends Controller
 
         $groups = $section->groups()->with('members.student.user')->get();
 
-        // Students not yet assigned to any group
         $assignedStudentIds = $groups->flatMap(fn($g) => $g->members->pluck('student_id'));
 
         $unassigned = $section->enrollments()
@@ -32,12 +31,42 @@ class GroupController extends Controller
         abort_unless(Auth::user()->teacher->id === $section->teacher_id, 403);
 
         $data = $request->validate([
+            'name'              => 'required|string|max:100',
+            'initial_members'   => 'nullable|array',
+            'initial_members.*' => 'exists:students,id',
+        ]);
+
+        $group = $section->groups()->create(['name' => $data['name']]);
+
+        // Add initial members if selected
+        if (!empty($data['initial_members'])) {
+            foreach ($data['initial_members'] as $studentId) {
+                GroupMember::firstOrCreate([
+                    'group_id'   => $group->id,
+                    'student_id' => $studentId,
+                ], ['role' => 'member']);
+            }
+            $count = count($data['initial_members']);
+            return back()->with('success', "Group \"{$data['name']}\" created with {$count} member(s).");
+        }
+
+        return back()->with('success', "Group \"{$data['name']}\" created.");
+    }
+
+    /**
+     * Rename a group
+     */
+    public function rename(Request $request, Group $group)
+    {
+        abort_unless(Auth::user()->teacher->id === $group->section->teacher_id, 403);
+
+        $data = $request->validate([
             'name' => 'required|string|max:100',
         ]);
 
-        $section->groups()->create($data);
+        $group->update($data);
 
-        return back()->with('success', 'Group created.');
+        return back()->with('success', "Group renamed to \"{$data['name']}\".");
     }
 
     public function assign(Request $request, Group $group)
@@ -49,14 +78,16 @@ class GroupController extends Controller
             'student_ids.*' => 'exists:students,id',
         ]);
 
+        $count = 0;
         foreach ($data['student_ids'] as $studentId) {
             GroupMember::firstOrCreate([
                 'group_id'   => $group->id,
                 'student_id' => $studentId,
             ], ['role' => 'member']);
+            $count++;
         }
 
-        return back()->with('success', 'Students assigned to group.');
+        return back()->with('success', "{$count} student(s) added to {$group->name}.");
     }
 
     public function setLeader(Request $request, Group $group)
@@ -67,13 +98,8 @@ class GroupController extends Controller
             'student_id' => 'required|exists:students,id',
         ]);
 
-        // Reset all to member first
         $group->members()->update(['role' => 'member']);
-
-        // Set new leader
-        $group->members()
-            ->where('student_id', $data['student_id'])
-            ->update(['role' => 'leader']);
+        $group->members()->where('student_id', $data['student_id'])->update(['role' => 'leader']);
 
         return back()->with('success', 'Group leader updated.');
     }
@@ -84,15 +110,16 @@ class GroupController extends Controller
 
         $group->members()->where('student_id', $student->id)->delete();
 
-        return back()->with('success', 'Student removed from group.');
+        return back()->with('success', "{$student->user->name} removed from group.");
     }
 
     public function destroy(Group $group)
     {
         abort_unless(Auth::user()->teacher->id === $group->section->teacher_id, 403);
 
+        $name = $group->name;
         $group->delete();
 
-        return back()->with('success', 'Group deleted.');
+        return back()->with('success', "Group \"{$name}\" deleted.");
     }
 }
