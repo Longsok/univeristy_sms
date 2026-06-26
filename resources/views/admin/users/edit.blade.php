@@ -97,6 +97,19 @@
                     <div style="font-size:13px;color:#374151;">Year {{ $user->student->year_level }}</div>
                 </div>
                 <div>
+                    <div class="form-label-rupp">Date of Birth</div>
+                    @if($user->student->date_of_birth)
+                        <div style="font-size:13px; color:#374151;">
+                            {{ \Carbon\Carbon::parse($user->student->date_of_birth)->format('d M Y') }}
+                        </div>
+                        <div style="font-size:11px; color:#9ca3af; margin-top:2px;">
+                            Age: {{ \Carbon\Carbon::parse($user->student->date_of_birth)->age }} years old
+                        </div>
+                    @else
+                        <span style="font-size:13px; color:#9ca3af;">Not provided</span>
+                    @endif
+                </div>
+                <div>
                     <div class="form-label-rupp">Batch</div>
                     <form action="{{ route('admin.students.update-batch', $user->student) }}" method="POST"
                           style="display:flex; gap:8px; align-items:center; margin-top:4px;">

@@ -94,6 +94,17 @@
                 @endif
             </div>
             @endif
+            @if($student->date_of_birth)
+            <div>
+                <div style="font-size:11px;color:#9ca3af;text-transform:uppercase;letter-spacing:.05em;">Date of Birth</div>
+                <div style="font-size:14px;font-weight:600;color:#111827;margin-top:2px;">
+                    {{ \Carbon\Carbon::parse($student->date_of_birth)->format('d M Y') }}
+                </div>
+                <div style="font-size:12px;color:#6b7280;">
+                    Age: {{ \Carbon\Carbon::parse($student->date_of_birth)->age }} years old
+                </div>
+            </div>
+            @endif
         </div>
     </div>
 </div>
