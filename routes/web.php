@@ -91,6 +91,12 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin'])->grou
     Route::delete('class-groups/{classGroup}/students/{student}', [\App\Http\Controllers\Admin\ClassGroupController::class, 'removeStudent'])->name('class-groups.remove-student');
     Route::post('class-groups/{classGroup}/enroll', [\App\Http\Controllers\Admin\ClassGroupController::class, 'enrollToSection'])->name('class-groups.enroll');
 
+    // Grade management — admin unlock
+     Route::get('grades', [\App\Http\Controllers\Admin\AdminGradeController::class, 'index'])
+          ->name('grades.index');
+     Route::post('grades/{section}/unlock', [\App\Http\Controllers\Admin\AdminGradeController::class, 'unlock'])
+          ->name('grades.unlock');
+
     // Semesters — set-active-year MUST be before resource
     Route::post('semesters/set-active-year', [\App\Http\Controllers\Admin\SemesterController::class, 'setActiveYear'])
          ->name('semesters.set-active-year');

@@ -636,6 +636,13 @@
             </a>
         </li>
 
+        <li>
+            <a href="{{ route('admin.grades.index') }}"
+            class="{{ request()->routeIs('admin.grades.*') ? 'active' : '' }}">
+                <i class="bi bi-unlock-fill"></i> Grade Management
+            </a>
+        </li>
+        
          <li>
             <a href="{{ route('admin.class-groups.index') }}"
             class="{{ request()->routeIs('admin.class-groups.*') ? 'active' : '' }}">
